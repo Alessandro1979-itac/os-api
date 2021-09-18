@@ -23,7 +23,7 @@ public class TecnicoService {
 	private TecnicoRepository repository;
 
 	@Autowired
-	PessoaRepository pessoaRepository;
+	private PessoaRepository pessoaRepository;
 
 	/*
 	 * Busca Tecnico pelo ID
