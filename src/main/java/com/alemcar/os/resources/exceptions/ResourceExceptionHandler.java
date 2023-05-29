@@ -1,5 +1,7 @@
 package com.alemcar.os.resources.exceptions;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -7,45 +9,43 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.alemcar.os.services.exceptions.DataIntegratyViolationException;
-import com.alemcar.os.services.exceptions.ObjectNotFoundException;
+import com.alemcar.os.services.exceptions.DataIntegrityViolationException;
+import com.alemcar.os.services.exceptions.ObjectnotFoundException;
 
 @ControllerAdvice
 public class ResourceExceptionHandler {
 
-	/*
-	 * Manipulando exceção para objeto não encontrado
-	 */
-	@ExceptionHandler(ObjectNotFoundException.class)
-	public ResponseEntity<StandardError> objectNotFoundException(ObjectNotFoundException e) {
+	@ExceptionHandler(ObjectnotFoundException.class)
+	public ResponseEntity<StandardError> objectnotFoundException(
+			ObjectnotFoundException ex, HttpServletRequest request) {
+
 		StandardError error = new StandardError(System.currentTimeMillis(), HttpStatus.NOT_FOUND.value(),
-				e.getMessage());
+				"Object Not Found", ex.getMessage(), request.getRequestURI());
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
-	/*
-	 * Manipulando exceção violação da integridade de dados
-	 */
-	@ExceptionHandler(DataIntegratyViolationException.class)
-	public ResponseEntity<StandardError> objectNotFoundException(DataIntegratyViolationException e) {
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<StandardError> dataIntegrityViolationException(
+			DataIntegrityViolationException ex, HttpServletRequest request) {
+
 		StandardError error = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
-				e.getMessage());
+				"Violação de dados", ex.getMessage(), request.getRequestURI());
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 	}
 
-	/*
-	 * Manipulando exceção para campos não preenchidos na criação de um objeto
-	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<StandardError> objectNotFoundException(MethodArgumentNotValidException e) {
-		ValidationError error = new ValidationError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
-				"Erro na validação dos campos!");
-		for (FieldError x : e.getBindingResult().getFieldErrors()) {
-			error.addError(x.getField(), x.getDefaultMessage());
+	public ResponseEntity<StandardError> validationErrors(MethodArgumentNotValidException ex,
+			HttpServletRequest request) {
+
+		ValidationError errors = new ValidationError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
+				"Validation error", "Erro na validação dos campos", request.getRequestURI());
+
+		for (FieldError x : ex.getBindingResult().getFieldErrors()) {
+			errors.addError(x.getField(), x.getDefaultMessage());
 		}
 
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
 	}
 }

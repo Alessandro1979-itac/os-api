@@ -8,7 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,10 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.alemcar.os.domain.Tecnico;
-import com.alemcar.os.dtos.TecnicoDTO;
+import com.alemcar.os.domain.dtos.TecnicoDTO;
 import com.alemcar.os.services.TecnicoService;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping(value = "/tecnicos")
 public class TecnicoResource {
@@ -31,52 +30,43 @@ public class TecnicoResource {
 	@Autowired
 	private TecnicoService service;
 
-	/*
-	 * Busca pelo ID
-	 */
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<TecnicoDTO> findById(@PathVariable Integer id) {
-		TecnicoDTO objDTO = new TecnicoDTO(service.findById(id));
+		Tecnico obj = service.findById(id);
 
-		return ResponseEntity.ok().body(objDTO);
+		return ResponseEntity.ok().body(new TecnicoDTO(obj));
 	}
-	
-	/*
-	 * Lista todos objetos do tipo Tecnico na base
-	 */
+
 	@GetMapping
 	public ResponseEntity<List<TecnicoDTO>> findAll() {
-		List<TecnicoDTO> listDTO = service.findAll().stream().map(obj -> new TecnicoDTO(obj))
-				.collect(Collectors.toList());
+		List<Tecnico> list = service.findAll();
+		List<TecnicoDTO> listDTO = list.stream().map(obj -> new TecnicoDTO(obj)).collect(
+				Collectors.toList());
+
 		return ResponseEntity.ok().body(listDTO);
 	}
 
-	/*
-	 * Cria um novo Tecnico
-	 */
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	public ResponseEntity<TecnicoDTO> create(@Valid @RequestBody TecnicoDTO objDto) {
 		Tecnico newObj = service.create(objDto);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newObj.getId()).toUri();
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(newObj.getId()).toUri();
 
 		return ResponseEntity.created(uri).build();
 	}
 
-	/*
-	 * Atualiza um Tecnico
-	 */
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<TecnicoDTO> update(@PathVariable Integer id, @Valid @RequestBody TecnicoDTO objDto) {
-		TecnicoDTO newObj = new TecnicoDTO(service.update(id, objDto));
+		Tecnico obj = service.update(id, objDto);
 
-		return ResponseEntity.ok().body(newObj);
+		return ResponseEntity.ok().body(new TecnicoDTO(obj));
 	}
 
-	/*
-	 * Delete Tecnico
-	 */
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Integer id) {
+	public ResponseEntity<TecnicoDTO> delete(@PathVariable Integer id) {
 		service.delete(id);
 
 		return ResponseEntity.noContent().build();

@@ -6,15 +6,16 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.alemcar.os.domain.Pessoa;
 import com.alemcar.os.domain.Tecnico;
-import com.alemcar.os.dtos.TecnicoDTO;
+import com.alemcar.os.domain.dtos.TecnicoDTO;
 import com.alemcar.os.repositories.PessoaRepository;
 import com.alemcar.os.repositories.TecnicoRepository;
-import com.alemcar.os.services.exceptions.DataIntegratyViolationException;
-import com.alemcar.os.services.exceptions.ObjectNotFoundException;
+import com.alemcar.os.services.exceptions.DataIntegrityViolationException;
+import com.alemcar.os.services.exceptions.ObjectnotFoundException;
 
 @Service
 public class TecnicoService {
@@ -25,73 +26,61 @@ public class TecnicoService {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 
-	/*
-	 * Busca Tecnico pelo ID
-	 */
+	@Autowired
+	private BCryptPasswordEncoder encoder;
+
 	public Tecnico findById(Integer id) {
 		Optional<Tecnico> obj = repository.findById(id);
-		
-		return obj.orElseThrow(() -> new ObjectNotFoundException(
-				"Objeto não encontrado! Id: " + id + ", Tipo: " + Tecnico.class.getName()));
+
+		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado! Id: " + id));
 	}
 
-	/*
-	 * Busca todos os Tecnicos da base de dados
-	 */
 	public List<Tecnico> findAll() {
 		return repository.findAll();
 	}
 
-	/*
-	 * Cria um Tecnico
-	 */
 	public Tecnico create(TecnicoDTO objDto) {
-		if (findByCPF(objDto) != null) {
-			throw new DataIntegratyViolationException("CPF já cadastrado na base de dados!");
-		}
-		
-		return repository.save(new Tecnico(null, objDto.getNome(), objDto.getCpf(), objDto.getTelefone()));
+		objDto.setId(null);
+		objDto.setSenha(encoder.encode(objDto.getSenha()));
+
+		validaPorCpfEEmail(objDto);
+		Tecnico newObj = new Tecnico(objDto);
+
+		return repository.save(newObj);
 	}
 
-	/*
-	 * Atualiza um Tecnico
-	 */
 	public Tecnico update(Integer id, @Valid TecnicoDTO objDTO) {
+		objDTO.setId(null);
 		Tecnico oldObj = findById(id);
-		
-		if (findByCPF(objDTO) != null && findByCPF(objDTO).getId() != id) {
-			throw new DataIntegratyViolationException("CPF já cadastrado na base de dados!");
-		}
-		
-		oldObj.setNome(objDTO.getNome());
-		oldObj.setCpf(objDTO.getCpf());
-		oldObj.setTelefone(objDTO.getTelefone());
-		
+
+		if (!objDTO.getSenha().equals(oldObj.getSenha()))
+			objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+
+		validaPorCpfEEmail(objDTO);
+		oldObj = new Tecnico(objDTO);
+
 		return repository.save(oldObj);
 	}
 
-	/*
-	 * Deleta um Tecnico pelo ID
-	 */
 	public void delete(Integer id) {
 		Tecnico obj = findById(id);
-		
-		if (obj.getList().size() > 0) {
-			throw new DataIntegratyViolationException("Técnico possui Ordens de Serviço, não pode ser deletado!");
+
+		if (obj.getChamados().size() > 0) {
+			throw new DataIntegrityViolationException("Técnico possui ordens de serviço e não pode ser deletado!");
 		}
-		
+
 		repository.deleteById(id);
 	}
-	
-	/*
-	 * Busca Tecnico pelo CPF
-	 */
-	private Pessoa findByCPF(TecnicoDTO objDto) {
-		Pessoa obj = pessoaRepository.findByCPF(objDto.getCpf());
-		
-		if (obj != null) {
-			return obj;
+
+	private void validaPorCpfEEmail(TecnicoDTO objDto) {
+		Optional<Pessoa> obj = pessoaRepository.findByCpf(objDto.getCpf());
+
+		if (obj.isPresent() && obj.get().getId() != objDto.getId()) {
+			throw new DataIntegrityViolationException("CPF já cadastrado no sistema!");
 		}
-		return null;
+		obj = pessoaRepository.findByEmail(objDto.getEmail());
+		if (obj.isPresent() && obj.get().getId() != objDto.getId()) {
+			throw new DataIntegrityViolationException("E-mail já cadastrado no sistema!");
+		}
 	}
 }

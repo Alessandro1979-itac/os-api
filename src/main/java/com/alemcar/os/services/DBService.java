@@ -3,15 +3,17 @@ package com.alemcar.os.services;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.alemcar.os.domain.Chamado;
 import com.alemcar.os.domain.Cliente;
-import com.alemcar.os.domain.OS;
 import com.alemcar.os.domain.Tecnico;
+import com.alemcar.os.domain.enuns.Perfil;
 import com.alemcar.os.domain.enuns.Prioridade;
 import com.alemcar.os.domain.enuns.Status;
+import com.alemcar.os.repositories.ChamadoRepository;
 import com.alemcar.os.repositories.ClienteRepository;
-import com.alemcar.os.repositories.OSRepository;
 import com.alemcar.os.repositories.TecnicoRepository;
 
 @Service
@@ -19,23 +21,33 @@ public class DBService {
 
 	@Autowired
 	private TecnicoRepository tecnicoRepository;
+
 	@Autowired
 	private ClienteRepository clienteRepository;
+
 	@Autowired
-	private OSRepository osRepository;
+	private ChamadoRepository chamadoRepository;
+
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	public void instanciaDB() {
-		Tecnico t1 = new Tecnico(null, "Alessandro Muniz", "144.785.300-84", "(88) 98888-8888");
-		Tecnico t2 = new Tecnico(null, "Linus Torvalds", "641.760.040-88", "(88) 94545-4545");
-		Cliente c1 = new Cliente(null, "Betina Campos", "598.508.200-80", "(88) 98888-7777");
+		Tecnico tec1 = new Tecnico(null, "Luiz Felipe", "11765549990", "email@gmail.com", encoder.encode("123"));
+		tec1.addPerfil(Perfil.ADMIN);
+		Tecnico tec2 = new Tecnico(null, "Gabriel", "69315400925", "email1@gmail.com", encoder.encode("123"));
+		tec1.addPerfil(Perfil.TECNICO);
+		Tecnico tec3 = new Tecnico(null, "Vitor", "33296342940", "email2@gmail.com", encoder.encode("123"));
+		tec1.addPerfil(Perfil.TECNICO);
+		Tecnico tec4 = new Tecnico(null, "Valdir", "64471145797", "email3@gmail.com", encoder.encode("123"));
+		tec1.addPerfil(Perfil.TECNICO);
 
-		OS os1 = new OS(null, Prioridade.ALTA, "Teste create OD", Status.ANDAMENTO, t1, c1);
+		Cliente cli1 = new Cliente(null, "Linus Torvalds", "41308163142", "torvalds@email.com", encoder.encode("123"));
+		Cliente cli2 = new Cliente(null, "Max", "41931024162", "max@email.com", encoder.encode("123"));
 
-		t1.getList().add(os1);
-		c1.getList().add(os1);
+		Chamado c1 = new Chamado(null, Prioridade.MEDIA, Status.ANDAMENTO, "Chamado 01", "Primeiro chamado", tec1, cli1);
 
-		tecnicoRepository.saveAll(Arrays.asList(t1, t2));
-		clienteRepository.saveAll(Arrays.asList(c1));
-		osRepository.saveAll(Arrays.asList(os1));
+		tecnicoRepository.saveAll(Arrays.asList(tec1, tec2, tec3, tec4));
+		clienteRepository.saveAll(Arrays.asList(cli1, cli2));
+		chamadoRepository.saveAll(Arrays.asList(c1));
 	}
 }
