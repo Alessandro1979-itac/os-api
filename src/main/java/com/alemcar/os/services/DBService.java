@@ -35,11 +35,11 @@ public class DBService {
 		Tecnico tec1 = new Tecnico(null, "Luiz Felipe", "11765549990", "email@gmail.com", encoder.encode("123"));
 		tec1.addPerfil(Perfil.ADMIN);
 		Tecnico tec2 = new Tecnico(null, "Gabriel", "69315400925", "email1@gmail.com", encoder.encode("123"));
-		tec1.addPerfil(Perfil.TECNICO);
+		tec2.addPerfil(Perfil.TECNICO);
 		Tecnico tec3 = new Tecnico(null, "Vitor", "33296342940", "email2@gmail.com", encoder.encode("123"));
-		tec1.addPerfil(Perfil.TECNICO);
+		tec3.addPerfil(Perfil.TECNICO);
 		Tecnico tec4 = new Tecnico(null, "Valdir", "64471145797", "email3@gmail.com", encoder.encode("123"));
-		tec1.addPerfil(Perfil.TECNICO);
+		tec4.addPerfil(Perfil.TECNICO);
 
 		Cliente cli1 = new Cliente(null, "Linus Torvalds", "41308163142", "torvalds@email.com", encoder.encode("123"));
 		Cliente cli2 = new Cliente(null, "Max", "41931024162", "max@email.com", encoder.encode("123"));

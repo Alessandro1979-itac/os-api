@@ -2,6 +2,7 @@ package com.alemcar.os.domain;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class Chamado implements Serializable {
 	private Prioridade prioridade;
 	private Status status;
 	private String titulo;
-	private String observacoes;
+	private String observacao;
 
 	@ManyToOne
 	@JoinColumn(name = "tecnico_id")
@@ -45,14 +46,14 @@ public class Chamado implements Serializable {
 		super();
 	}
 
-	public Chamado(Integer id, Prioridade prioridade, Status status, String titulo, String observacoes, Tecnico tecnico,
+	public Chamado(Integer id, Prioridade prioridade, Status status, String titulo, String observacao, Tecnico tecnico,
 			Cliente cliente) {
 		super();
 		this.id = id;
 		this.prioridade = prioridade;
 		this.status = status;
 		this.titulo = titulo;
-		this.observacoes = observacoes;
+		this.observacao = observacao;
 		this.tecnico = tecnico;
 		this.cliente = cliente;
 	}
@@ -105,12 +106,12 @@ public class Chamado implements Serializable {
 		this.titulo = titulo;
 	}
 
-	public String getObservacoes() {
-		return observacoes;
+	public String getObservacao() {
+		return observacao;
 	}
 
-	public void setObservacoes(String observacoes) {
-		this.observacoes = observacoes;
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
 	}
 
 	public Tecnico getTecnico() {
@@ -131,10 +132,7 @@ public class Chamado implements Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -146,12 +144,7 @@ public class Chamado implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Chamado other = (Chamado) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+		return Objects.equals(id, other.id);
 	}
 
 }

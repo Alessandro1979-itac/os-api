@@ -28,8 +28,8 @@ public class ChamadoDTO implements Serializable {
 	@NotNull(message = "O campo TITULO é requerido")
 	private String titulo;
 
-	@NotNull(message = "O campo OBSERVAÇÕES é requerido")
-	private String observacoes;
+	@NotNull(message = "O campo OBSERVAÇÃO é requerido")
+	private String observacao;
 
 	@NotNull(message = "O campo TECNICO é requerido")
 	private Integer tecnico;
@@ -51,7 +51,7 @@ public class ChamadoDTO implements Serializable {
 		this.prioridade = obj.getPrioridade().getCodigo();
 		this.status = obj.getStatus().getCodigo();
 		this.titulo = obj.getTitulo();
-		this.observacoes = obj.getObservacoes();
+		this.observacao = obj.getObservacao();
 		this.tecnico = obj.getTecnico().getId();
 		this.cliente = obj.getCliente().getId();
 		this.nomeCliente = obj.getCliente().getNome();
@@ -106,12 +106,12 @@ public class ChamadoDTO implements Serializable {
 		this.titulo = titulo;
 	}
 
-	public String getObservacoes() {
-		return observacoes;
+	public String getObservacao() {
+		return observacao;
 	}
 
-	public void setObservacoes(String observacoes) {
-		this.observacoes = observacoes;
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
 	}
 
 	public Integer getTecnico() {

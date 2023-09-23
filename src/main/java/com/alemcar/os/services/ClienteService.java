@@ -65,7 +65,7 @@ public class ClienteService {
 		Cliente obj = findById(id);
 
 		if (obj.getChamados().size() > 0) {
-			throw new DataIntegrityViolationException("Cliente possui ordens de serviço e não pode ser deletado!");
+			throw new DataIntegrityViolationException("Técnico possui ordens de serviço e não pode ser deletado!");
 		}
 
 		repository.deleteById(id);

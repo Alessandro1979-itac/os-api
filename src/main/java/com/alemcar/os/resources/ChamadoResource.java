@@ -38,7 +38,8 @@ public class ChamadoResource {
 	@GetMapping
 	public ResponseEntity<List<ChamadoDTO>> findAll() {
 		List<Chamado> list = service.findAll();
-		List<ChamadoDTO> listDTO = list.stream().map(obj -> new ChamadoDTO(obj)).collect(Collectors.toList());
+		List<ChamadoDTO> listDTO = list.stream().map(obj -> new ChamadoDTO(obj)).collect(
+			Collectors.toList());
 
 		return ResponseEntity.ok().body(listDTO);
 	}
@@ -46,7 +47,8 @@ public class ChamadoResource {
 	@PostMapping
 	public ResponseEntity<ChamadoDTO> create(@Valid @RequestBody ChamadoDTO objDTO) {
 		Chamado newObj = service.create(objDTO);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newObj.getId()).toUri();
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(
+			newObj.getId()).toUri();
 
 		return ResponseEntity.created(uri).build();
 	}
